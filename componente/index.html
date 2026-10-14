@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Previsão de Pagamentos</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+
+  <header class="topo">
+    <div class="topo-tit">
+      <h1>Previsão de pagamentos</h1>
+      <p class="sub" id="origem">Carregando…</p>
+    </div>
+    <div class="topo-acoes">
+      <button class="btn btn-pri" id="atualizar" type="button">Atualizar</button>
+      <button class="btn" id="exportar" type="button">Exportar CSV</button>
+    </div>
+  </header>
+
+  <div class="aviso" id="aviso" hidden></div>
+
+  <section class="filtros" aria-label="Filtros">
+    <div class="ms" id="f-empresa"></div>
+    <div class="ms" id="f-obra"></div>
+    <button class="btn btn-link" id="limpar" type="button" hidden>Limpar filtros</button>
+  </section>
+
+  <p class="resumo" id="resumo"></p>
+
+  <section class="kpis" id="kpis">
+    <article class="card kpi" data-k="d0_7">
+      <div class="kpi-lbl">Próximos 7 dias</div><div class="kpi-win"></div>
+      <div class="kpi-val">—</div><div class="kpi-n"></div>
+    </article>
+    <article class="card kpi" data-k="d8_14">
+      <div class="kpi-lbl">De 8 a 14 dias</div><div class="kpi-win"></div>
+      <div class="kpi-val">—</div><div class="kpi-n"></div>
+    </article>
+    <article class="card kpi" data-k="d15">
+      <div class="kpi-lbl">15 dias ou mais</div><div class="kpi-win"></div>
+      <div class="kpi-val">—</div><div class="kpi-n"></div>
+    </article>
+    <article class="card kpi" data-k="total">
+      <div class="kpi-lbl">Total a pagar</div><div class="kpi-win"></div>
+      <div class="kpi-val">—</div><div class="kpi-n"></div>
+    </article>
+  </section>
+  <div class="faixa-strip" id="strip"></div>
+
+  <section class="grade">
+    <article class="card larga">
+      <h2>Agenda de saída de caixa</h2>
+      <p class="nota">Valor líquido por dia previsto de pagamento nos próximos 30 dias. As linhas tracejadas marcam 7 e 14 dias.</p>
+      <div class="graf" id="agenda"></div>
+      <p class="nota rodape" id="agenda-extra"></p>
+    </article>
+    <article class="card">
+      <h2>Por natureza do pagamento</h2>
+      <p class="nota">Impostos retidos, encargos, rateio interno e fornecedores.</p>
+      <div class="barras" id="natureza"></div>
+    </article>
+  </section>
+
+  <section class="card" id="agrupamento">
+    <div class="cab">
+      <div>
+        <h2>Quem e o quê vai ser pago</h2>
+        <p class="nota">Clique numa barra para filtrar a lista de parcelas.</p>
+      </div>
+      <label class="campo">Agrupar por
+        <select id="dim">
+          <option value="fornecedor">Fornecedor (origem)</option>
+          <option value="favorecido">Favorecido (quem recebe)</option>
+          <option value="empresa">Empresa</option>
+          <option value="obra">Obra</option>
+          <option value="planejamento">Planejamento (composição)</option>
+          <option value="insumo">Insumo do planejamento</option>
+          <option value="item">Item do processo</option>
+          <option value="categoria">Categoria do insumo</option>
+          <option value="natureza">Natureza</option>
+          <option value="conta">Conta corrente</option>
+          <option value="mes_pl">Mês do planejamento</option>
+          <option value="forma">Forma de pagamento</option>
+          <option value="aprovacao">Confirmação de emissão</option>
+        </select>
+      </label>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Horizonte"></div>
+    <div class="barras" id="grupos"></div>
+    <button class="btn btn-link" id="ver-todos" type="button" hidden></button>
+    <div class="legenda" id="legenda"></div>
+  </section>
+
+  <section class="card" id="parcelas">
+    <div class="cab">
+      <div>
+        <h2>Parcelas</h2>
+        <p class="nota" id="tab-info"></p>
+      </div>
+      <div class="cab-dir">
+        <button class="pill" id="sel-pill" type="button" hidden></button>
+        <input type="search" id="busca" placeholder="Buscar fornecedor, processo, histórico…" aria-label="Buscar">
+      </div>
+    </div>
+    <div class="tabela-box">
+      <table class="tabela" id="tabela">
+        <thead><tr>
+          <th data-col="obra">Obra</th>
+          <th data-col="processo" class="num">Processo</th>
+          <th data-col="pagamento">Pagamento</th>
+          <th data-col="_dias" class="num">Dias</th>
+          <th data-col="_faixa">Horizonte</th>
+          <th data-col="fornecedor">Fornecedor</th>
+          <th data-col="favorecido" class="opc">Favorecido</th>
+          <th data-col="planejamento" class="opc">Planejamento</th>
+          <th data-col="insumo" class="opc">Insumo</th>
+          <th data-col="valor_liquido" class="num">Valor líquido</th>
+          <th data-col="historico" class="opc">Histórico</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="nota rodape" id="tab-limite"></p>
+  </section>
+
+  <section class="card" id="atencao">
+    <h2>Pontos de atenção</h2>
+    <p class="nota">Retenção diferente de NF × alíquota, pagamento ou aprovação depois do vencimento e parcelas que dividem a mesma guia. Clique num tipo para filtrar.</p>
+    <div class="chips" id="alerta-chips"></div>
+    <div class="tabela-box" style="max-height: 420px">
+      <table class="tabela" id="alertas">
+        <thead><tr>
+          <th>Obra</th><th class="num">Processo</th><th>Ponto</th><th>Detalhe</th><th class="num">Valor líquido</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="nota rodape" id="alerta-limite"></p>
+  </section>
+
+  <footer class="pe">Fonte: Parc_Proc + VwDesembolso (UAU), parcelas em status 1 com pagamento de hoje em diante. Valor líquido = TotalLiq_Des (parcela + acréscimo − desconto).</footer>
+</div>
+<div class="tip" id="tip" role="tooltip"></div>
+<script src="app.js"></script>
+</body>
+</html>
